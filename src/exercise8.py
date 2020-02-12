@@ -1,4 +1,18 @@
+from math import (
+    cos,
+    exp,
+    log,
+    sin,
+)
+from operator import (
+    add,
+    mul,
+    sub,
+    truediv,
+)
+
 import numpy as np
+from deap import gp
 
 x_values = np.linspace(-1, 1, num=21)
 y_values = np.array((
@@ -24,3 +38,15 @@ y_values = np.array((
     3.0951,
     4,
 ))
+
+primitive_set = gp.PrimitiveSet('exercise8', 1)
+primitive_set.renameArguments(ARG0='x')
+
+primitive_set.addPrimitive(add, 2)
+primitive_set.addPrimitive(cos, 1)
+primitive_set.addPrimitive(exp, 1)
+primitive_set.addPrimitive(log, 1)
+primitive_set.addPrimitive(mul, 2)
+primitive_set.addPrimitive(sin, 1)
+primitive_set.addPrimitive(sub, 2)
+primitive_set.addPrimitive(truediv, 2)
