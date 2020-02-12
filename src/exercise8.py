@@ -13,6 +13,7 @@ from operator import (
 
 import numpy as np
 from deap import (
+    algorithms,
     base,
     creator,
     gp,
@@ -88,3 +89,15 @@ def evaluate(individual, x_values, y_values):
 toolbox.register('evaluate', evaluate, x_values=x_values, y_values=y_values)
 toolbox.register('mate', gp.cxOnePoint)
 toolbox.register('select', tools.selTournament, tournsize=3)
+
+population = toolbox.population(n=1000)
+hall_of_fame = tools.HallOfFame(1)
+population, log = algorithms.eaSimple(
+    population,
+    toolbox,
+    cxpb=0.7,  # crossover probability
+    mutpb=0,  # mutation probability
+    ngen=50,
+    halloffame=hall_of_fame,
+    verbose=True,
+)
