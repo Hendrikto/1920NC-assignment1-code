@@ -12,7 +12,12 @@ from operator import (
 )
 
 import numpy as np
-from deap import gp
+from deap import (
+    base,
+    creator,
+    gp,
+    tools,
+)
 
 x_values = np.linspace(-1, 1, num=21)
 y_values = np.array((
@@ -50,3 +55,12 @@ primitive_set.addPrimitive(mul, 2)
 primitive_set.addPrimitive(sin, 1)
 primitive_set.addPrimitive(sub, 2)
 primitive_set.addPrimitive(truediv, 2)
+
+creator.create('Fitness', base.Fitness, weights=(-1,))
+creator.create('Individual', gp.PrimitiveTree, fitness=creator.Fitness)
+
+toolbox = base.Toolbox()
+toolbox.register('generate', gp.genGrow, primitive_set, min_=1, max_=5)
+toolbox.register('individual', tools.initIterate, creator.Individual, toolbox.generate)
+toolbox.register('population', tools.initRepeat, list, toolbox.individual)
+toolbox.register('compile', gp.compile, pset=primitive_set)
