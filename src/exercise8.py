@@ -64,3 +64,27 @@ toolbox.register('generate', gp.genGrow, primitive_set, min_=1, max_=5)
 toolbox.register('individual', tools.initIterate, creator.Individual, toolbox.generate)
 toolbox.register('population', tools.initRepeat, list, toolbox.individual)
 toolbox.register('compile', gp.compile, pset=primitive_set)
+
+
+def compute(individual, x_values):
+    function_vec = np.vectorize(toolbox.compile(individual))
+    return function_vec(x_values)
+
+
+def evaluate(individual, x_values, y_values):
+    """
+    Evaluate an individual using sum of absolute errors.
+
+    :returns: tuple of fitness scores
+    """
+    try:
+        predictions = compute(individual, x_values)
+    except (OverflowError, ValueError, ZeroDivisionError):
+        return (float('inf'),)
+    return (np.abs(y_values - predictions).sum(),)
+
+
+# required functions for deap.algorithms.eaSimple
+toolbox.register('evaluate', evaluate, x_values=x_values, y_values=y_values)
+toolbox.register('mate', gp.cxOnePoint)
+toolbox.register('select', tools.selTournament, tournsize=3)
