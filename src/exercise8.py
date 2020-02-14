@@ -101,3 +101,6 @@ population, log = algorithms.eaSimple(
     halloffame=hall_of_fame,
     verbose=True,
 )
+
+print('Fittest individual:', hall_of_fame[0])
+print('Fitness:', toolbox.evaluate(hall_of_fame[0])[0])
