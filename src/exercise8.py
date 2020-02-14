@@ -11,6 +11,7 @@ from operator import (
     truediv,
 )
 
+import matplotlib.pyplot as plt
 import numpy as np
 from deap import (
     algorithms,
@@ -104,3 +105,14 @@ population, log = algorithms.eaSimple(
 
 print('Fittest individual:', hall_of_fame[0])
 print('Fitness:', toolbox.evaluate(hall_of_fame[0])[0])
+
+plt.figure()
+plt.title('Fittest Individual')
+plt.xlabel('$x$')
+plt.ylabel('$y$')
+plt.scatter(x_values, y_values, marker='x', label='targets')
+plt.plot(x_values, compute(hall_of_fame[0], x_values), label='fittest individual')
+plt.legend()
+plt.savefig('plots/exercise8-fittest_individual.pdf')
+plt.show()
+plt.close()
