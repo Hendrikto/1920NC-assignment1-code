@@ -91,6 +91,18 @@ toolbox.register('evaluate', evaluate, x_values=x_values, y_values=y_values)
 toolbox.register('mate', gp.cxOnePoint)
 toolbox.register('select', tools.selTournament, tournsize=3)
 
+statistics_fitness = tools.Statistics(lambda i: i.fitness.values[0])
+statistics_fitness.register('minimum', min)
+statistics_height = tools.Statistics(lambda i: (i.fitness.values[0], i.height))
+statistics_height.register('best', lambda values: min(values)[1])
+statistics_nr_nodes = tools.Statistics(lambda i: (i.fitness.values[0], len(i)))
+statistics_nr_nodes.register('best', lambda values: min(values)[1])
+statistics = tools.MultiStatistics(
+    fitness=statistics_fitness,
+    height=statistics_height,
+    nr_nodes=statistics_nr_nodes,
+)
+
 population = toolbox.population(n=1000)
 hall_of_fame = tools.HallOfFame(1)
 population, log = algorithms.eaSimple(
@@ -100,6 +112,7 @@ population, log = algorithms.eaSimple(
     mutpb=0,  # mutation probability
     ngen=50,
     halloffame=hall_of_fame,
+    stats=statistics,
     verbose=True,
 )
 
