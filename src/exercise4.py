@@ -72,6 +72,7 @@ def exercise_four_a():
     plt.title('Fitness of encountered candidate solutions')
     plt.xlabel('Iteration')
     plt.ylabel('Fitness')
+    plt.savefig('plots/exercise4a-fitness.pdf')
     plt.show()
     plt.close()
 
@@ -111,6 +112,7 @@ def exercise_four_c():
     plt.title('Fitness of encountered candidate solutions')
     plt.xlabel('Iteration')
     plt.ylabel('Fitness')
+    plt.savefig('plots/exercise4c-fitness.pdf')
     plt.show()
     plt.close()
 
