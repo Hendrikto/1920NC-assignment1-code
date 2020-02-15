@@ -73,6 +73,7 @@ def exercise_four_a():
     plt.xlabel('Iteration')
     plt.ylabel('Fitness')
     plt.show()
+    plt.close()
 
 
 def exercise_four_b():
@@ -111,6 +112,7 @@ def exercise_four_c():
     plt.xlabel('Iteration')
     plt.ylabel('Fitness')
     plt.show()
+    plt.close()
 
     # print results
     print(f'Number of times the optimum was found: {optimum_found}')
