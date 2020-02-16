@@ -1,5 +1,3 @@
-import math
-
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.random as random
@@ -24,31 +22,19 @@ def sample_cuts(length):
     return cut1, cut2
 
 
-def fill_missing_nodes(child, parent, cut1, cut2):
+def fill_missing_nodes(child, parent):
     """
     Add the missing nodes to the child from the parent after crossover.
 
     Args:
         child  = [ndarray] child candidate solution with missing nodes as -1
         parent = [ndarray] parent candidate solution which has the missing nodes
-        cut1   = [int] first crossover cut
-        cut2   = [int] second crossover cut
 
     Returns [ndarray]:
         Child candidate solution with the missing nodes from parent.
     """
-    length = len(parent)
-    child_idx = cut2 % length
-    parent_idx = cut2 % length
-
-    while child_idx >= cut2 or child_idx < cut1:
-        node = parent[parent_idx]
-        parent_idx = (parent_idx + 1) % length
-
-        if node not in child:
-            child[child_idx] = node
-            child_idx = (child_idx + 1) % length
-
+    missing_nodes = set(parent) - set(child)
+    child[child == -1] = [node for node in parent if node in missing_nodes]
     return child
 
 
@@ -68,14 +54,13 @@ def crossover(parent1, parent2):
     """
     cut1, cut2 = sample_cuts(len(parent1))
 
-    child1_cut = parent1[cut1:cut2]
-    child2_cut = parent2[cut1:cut2]
+    child1 = np.full(parent2.shape, -1)
+    child1[cut1:cut2] = parent1[cut1:cut2]
+    child2 = np.full(parent1.shape, -1)
+    child2[cut1:cut2] = parent2[cut1:cut2]
 
-    child1 = np.pad(child1_cut, (cut1, len(parent2) - cut2), mode='constant', constant_values=-1)
-    child2 = np.pad(child2_cut, (cut1, len(parent1) - cut2), mode='constant', constant_values=-1)
-
-    child1 = fill_missing_nodes(child1, parent2, cut1, cut2)
-    child2 = fill_missing_nodes(child2, parent1, cut1, cut2)
+    child1 = fill_missing_nodes(child1, parent2)
+    child2 = fill_missing_nodes(child2, parent1)
 
     return child1, child2
 
@@ -106,12 +91,8 @@ def fitness(route):
     Returns [float]:
         Fitness of route candidate solution.
     """
-    total_distance = 0
-    for node1_idx, node2_idx in zip(route, route[1:]):
-        delta_x, delta_y = tsp[node1_idx] - tsp[node2_idx]
-        total_distance += math.hypot(delta_x, delta_y)
-
-    return total_distance
+    points = tsp[route]
+    return np.linalg.norm(points[1:] - points[:-1], axis=1).sum()
 
 
 def tournament_selection(routes, num_parents):
@@ -131,14 +112,11 @@ def tournament_selection(routes, num_parents):
     routes_idx = random.randint(len(routes), size=2 * num_parents)
     route_pairs = zip(routes[routes_idx[::2]], routes[routes_idx[1::2]])
 
-    parents = []
-    for route1, route2 in route_pairs:
-        if fitness(route1) < fitness(route2):
-            parents.append(route1)
-        else:
-            parents.append(route2)
+    parents = np.empty((num_parents, routes.shape[1]), dtype=int)
+    for i, route_pair in enumerate(route_pairs):
+        parents[i] = min(route_pair, key=fitness)
 
-    return np.array(parents)
+    return parents
 
 
 def create_children(parents, p_c, p_m, num_children):
@@ -190,14 +168,16 @@ def best_swap(route):
         that has a better fitness.
     """
     best_route = route
+    best_fitness = fitness(best_route)
     for i in range(len(route) - 1):
         swap_route = route.copy()
 
         swap_route[i], swap_route[i + 1] = swap_route[i + 1], swap_route[i]
 
         swap_fitness = fitness(swap_route)
-        if swap_fitness < fitness(best_route):
+        if swap_fitness < best_fitness:
             best_route = swap_route
+            best_fitness = swap_fitness
 
     return best_route
 
